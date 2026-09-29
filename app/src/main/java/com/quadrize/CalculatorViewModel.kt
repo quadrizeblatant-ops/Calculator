@@ -15,35 +15,33 @@ class CalculatorViewModel : ViewModel() {
 
     private val _resultText = MutableLiveData("")
     val resultText: LiveData<String> = _resultText
-    fun onButtonClick(btn: String) {
-        Log.i("Clicked Button", btn)
+    fun onButtonClick(btn: ButtonList) {
+        Log.i("Clicked Button", btn.symbol)
 
-        _equatiionText.value?.let {
-            if (btn == "AC") {
+        _equatiionText.value?.let { equation ->
+
+            if (btn == ButtonList.AC) {
                 _equatiionText.value = ""
-                _resultText.value = "0"
+                _resultText.value = ""
                 return
             }
-            if (btn == "C") {
-                if (it.isNotEmpty()) {
-                    _equatiionText.value = it.substring(0, it.length - 1)
+
+            if (btn == ButtonList.C) {
+                if (equation.isNotEmpty()) {
+                    _equatiionText.value = equation.dropLast(1)
                     return
                 }
             }
-            if (btn == "=") {
+
+            if (btn == ButtonList.EQUALS) {
                 try {
-                    _resultText.value = calculateResult(it)
+                    _resultText.value = calculateResult(equation)
                 } catch (_: Exception) {
                 }
-
                 return
             }
-            _equatiionText.value = it + btn
 
-            try {
-                _resultText.value = calculateResult(_equatiionText.value.toString())
-            } catch (_: Exception) {
-            }
+            _equatiionText.value = equation + btn.symbol
         }
     }
 

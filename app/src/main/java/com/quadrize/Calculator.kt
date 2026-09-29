@@ -36,26 +36,30 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 
 val buttonList = listOf(
-    "C",
-    "(",
-    ")",
-    "/",
-    "7",
-    "8",
-    "9",
-    "*",
-    "4",
-    "5",
-    "6",
-    "+",
-    "1",
-    "2",
-    "3",
-    "-",
-    "AC",
-    "0",
-    ".",
-    "="
+    ButtonList.C,
+    ButtonList.OPEN_BRACKET,
+    ButtonList.CLOSE_BRACKET,
+    ButtonList.DIVIDE,
+
+    ButtonList.SEVEN,
+    ButtonList.EIGHT,
+    ButtonList.NINE,
+    ButtonList.MULTIPLY,
+
+    ButtonList.FOUR,
+    ButtonList.FIVE,
+    ButtonList.SIX,
+    ButtonList.PLUS,
+
+    ButtonList.ONE,
+    ButtonList.TWO,
+    ButtonList.THREE,
+    ButtonList.MINUS,
+
+    ButtonList.AC,
+    ButtonList.ZERO,
+    ButtonList.DOT,
+    ButtonList.EQUALS
 )
 
 @Composable
@@ -108,21 +112,31 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel) {
 }
 
 @Composable
-fun CalculatorButton(btn: String, onClick: () -> Unit) {
+fun CalculatorButton(btn: ButtonList, onClick: () -> Unit) {
     Box(modifier = Modifier.padding(10.dp)) {
         FloatingActionButton(
             onClick = onClick, modifier = Modifier.size(80.dp), containerColor = getColor(btn)
         ) {
-            Text(text = btn, fontSize = 20.sp, color = Color.White)
+            Text(text = btn.symbol, fontSize = 20.sp, color = Color.White)
         }
     }
 }
 
-fun getColor(btn: String): Color {
-    return if (btn in listOf("C", "(", ")", "/") || btn in listOf("/", "*", "+", "-", "=")) {
+fun getColor(btn: ButtonList): Color {
+    return if (
+        btn in listOf(
+            ButtonList.C,
+            ButtonList.OPEN_BRACKET,
+            ButtonList.CLOSE_BRACKET,
+            ButtonList.DIVIDE,
+            ButtonList.MULTIPLY,
+            ButtonList.PLUS,
+            ButtonList.MINUS,
+            ButtonList.EQUALS
+        )
+    ) {
         Color(0xFF706F6F)
     } else {
         Color.DarkGray
     }
 }
-
