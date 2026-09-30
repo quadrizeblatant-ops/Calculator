@@ -2,12 +2,10 @@ package com.quadrize
 
 import androidx.lifecycle.ViewModel
 import android.util.Log
-import androidx.activity.contextaware.ContextAware
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import org.mozilla.javascript.Context
-import org.mozilla.javascript.Scriptable
 
+private val calculatorEngine = CalculatorEngine()
 class CalculatorViewModel : ViewModel() {
 
     private val _equatiionText = MutableLiveData("")
@@ -46,11 +44,21 @@ class CalculatorViewModel : ViewModel() {
     }
 
     fun calculateResult(equation: String): String {
-        val context: Context = Context.enter()
-        context.optimizationLevel = -1
-        val scriptable: Scriptable = context.initStandardObjects()
-        val finalResult =
-            context.evaluateString(scriptable, equation, "Javascript", 1, null).toString()
-        return finalResult
+        val operator = when {
+            equation.contains("+") -> "+"
+            equation.contains("-") -> "-"
+            equation.contains("*") -> "*"
+            equation.contains("/") -> "/"
+            else -> return equation
+        }
+
+        val numbers = equation.split(operator)
+
+        val firstNumber = numbers[0].toDouble()
+        val secondNumber = numbers[1].toDouble()
+
+        return calculatorEngine
+            .calculate(firstNumber, secondNumber, operator)
+            .toString()
     }
 }
