@@ -13,6 +13,9 @@ class CalculatorViewModel : ViewModel() {
 
     private val _resultText = MutableLiveData("")
     val resultText: LiveData<String> = _resultText
+
+    private var isCalculated = false
+
     fun onButtonClick(btn: ButtonList) {
         Log.i("Clicked Button", btn.symbol)
 
@@ -21,10 +24,17 @@ class CalculatorViewModel : ViewModel() {
             if (btn == ButtonList.AC) {
                 _equatiionText.value = ""
                 _resultText.value = ""
+                isCalculated = false
                 return
             }
 
             if (btn == ButtonList.C) {
+                if (isCalculated) {
+                    _equatiionText.value = ""
+                    _resultText.value = ""
+                    isCalculated = false
+                    return
+                }
                 if (equation.isNotEmpty()) {
                     _equatiionText.value = equation.dropLast(1)
                     return
@@ -32,15 +42,44 @@ class CalculatorViewModel : ViewModel() {
             }
 
             if (btn == ButtonList.EQUALS) {
-                try {
-                    _resultText.value = calculateResult(equation)
-                } catch (_: Exception) {
+                if (equation.isNotEmpty()) {
+                    try {
+                        val res = calculateResult(equation)
+                        _resultText.value = res
+                        isCalculated = true
+                    } catch (_: Exception) {
+                    }
+                }
+                return
+            }
+
+            // If user clicked an operator/digit after result was already calculated
+            if (isCalculated) {
+                val currentResult = _resultText.value ?: ""
+                isCalculated = false
+                _resultText.value = ""
+
+                if (isOperator(btn)) {
+                    // Continue calculating using previous result
+                    _equatiionText.value = currentResult + btn.symbol
+                } else {
+                    // Start brand new equation with pressed key
+                    _equatiionText.value = btn.symbol
                 }
                 return
             }
 
             _equatiionText.value = equation + btn.symbol
         }
+    }
+
+    private fun isOperator(btn: ButtonList): Boolean {
+        return btn in listOf(
+            ButtonList.PLUS,
+            ButtonList.MINUS,
+            ButtonList.MULTIPLY,
+            ButtonList.DIVIDE
+        )
     }
 
     fun calculateResult(equation: String): String {
@@ -54,11 +93,16 @@ class CalculatorViewModel : ViewModel() {
 
         val numbers = equation.split(operator)
 
-        val firstNumber = numbers[0].toDouble()
-        val secondNumber = numbers[1].toDouble()
+        if (numbers.size < 2 || numbers[1].isEmpty()) return equation
 
-        return calculatorEngine
-            .calculate(firstNumber, secondNumber, operator)
-            .toString()
+        val firstNumber = numbers[0].toDoubleOrNull() ?: return equation
+        val secondNumber = numbers[1].toDoubleOrNull() ?: return equation
+
+        val result = calculatorEngine.calculate(firstNumber, secondNumber, operator)
+        return if (result % 1.0 == 0.0) {
+            result.toLong().toString()
+        } else {
+            result.toString()
+        }
     }
 }
