@@ -15,7 +15,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -93,7 +93,7 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel) {
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        // Living animated gradient background
+        // Lightweight floating orbs background
         GlassmorphicBackground()
 
         Column(
@@ -112,7 +112,7 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel) {
                     .border(
                         width = 1.dp,
                         brush = Brush.verticalGradient(
-                            listOf(Color(0x40FFFFFF), Color(0x10FFFFFF))
+                            listOf(Color(0x35FFFFFF), Color(0x0AFFFFFF))
                         ),
                         shape = RoundedCornerShape(32.dp)
                     )
@@ -146,7 +146,7 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel) {
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Result display with spring animation
+                    // Result display with animation
                     AnimatedContent(
                         targetState = resultText,
                         transitionSpec = {
@@ -192,86 +192,66 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel) {
 fun GlassmorphicBackground() {
     val infiniteTransition = rememberInfiniteTransition(label = "bgAnimation")
 
-    val angle1 by infiniteTransition.animateFloat(
+    val animationProgress by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 360f,
+        targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(14000, easing = LinearEasing),
+            animation = tween(16000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
-        label = "orb1Angle"
+        label = "orbProgress"
     )
 
-    val angle2 by infiniteTransition.animateFloat(
-        initialValue = 360f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(18000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "orb2Angle"
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .drawBehind {
+                val progress = animationProgress
+                val angleRad = progress * 2 * Math.PI.toFloat()
+
+                val w = size.width
+                val h = size.height
+
+                val orb1X = (sin(angleRad) * 0.3f + 0.4f) * w
+                val orb1Y = (cos(angleRad) * 0.2f + 0.3f) * h
+
+                val orb2X = (cos(-angleRad) * 0.35f + 0.6f) * w
+                val orb2Y = (sin(-angleRad) * 0.25f + 0.65f) * h
+
+                // 1. Base dark background
+                drawRect(color = Color(0xFF0C0A15))
+
+                // 2. Purple glowing orb
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0x707000FF),
+                            Color(0x204B0082),
+                            Color.Transparent
+                        ),
+                        center = Offset(orb1X, orb1Y),
+                        radius = w * 0.85f
+                    ),
+                    center = Offset(orb1X, orb1Y),
+                    radius = w * 0.85f
+                )
+
+                // 3. Cyan glowing orb
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0x5500F2FE),
+                            Color(0x154FACFE),
+                            Color.Transparent
+                        ),
+                        center = Offset(orb2X, orb2Y),
+                        radius = w * 0.9f
+                    ),
+                    center = Offset(orb2X, orb2Y),
+                    radius = w * 0.9f
+                )
+            }
     )
-
-    val rad1 = Math.toRadians(angle1.toDouble())
-    val rad2 = Math.toRadians(angle2.toDouble())
-
-    val orb1X = (sin(rad1) * 0.35 + 0.35).toFloat()
-    val orb1Y = (cos(rad1) * 0.25 + 0.25).toFloat()
-
-    val orb2X = (cos(rad2) * 0.3 + 0.65).toFloat()
-    val orb2Y = (sin(rad2) * 0.35 + 0.7).toFloat()
-
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        val w = size.width
-        val h = size.height
-
-        // Deep rich dark backdrop
-        drawRect(color = Color(0xFF0C0A15))
-
-        // Neon Violet glowing orb
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF7000FF).copy(alpha = 0.5f),
-                    Color(0xFF4B0082).copy(alpha = 0.2f),
-                    Color.Transparent
-                ),
-                center = Offset(w * orb1X, h * orb1Y),
-                radius = w * 0.9f
-            ),
-            center = Offset(w * orb1X, h * orb1Y),
-            radius = w * 0.9f
-        )
-
-        // Neon Cyan glowing orb
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFF00F2FE).copy(alpha = 0.38f),
-                    Color(0xFF4FACFE).copy(alpha = 0.15f),
-                    Color.Transparent
-                ),
-                center = Offset(w * orb2X, h * orb2Y),
-                radius = w * 1.0f
-            ),
-            center = Offset(w * orb2X, h * orb2Y),
-            radius = w * 1.0f
-        )
-
-        // Center Magenta/Pink glow
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFFF007F).copy(alpha = 0.22f),
-                    Color.Transparent
-                ),
-                center = Offset(w * 0.5f, h * 0.55f),
-                radius = w * 0.75f
-            ),
-            center = Offset(w * 0.5f, h * 0.55f),
-            radius = w * 0.75f
-        )
-    }
 }
 
 @Composable
@@ -287,17 +267,21 @@ fun CalculatorButton(btn: ButtonList, onClick: () -> Unit) {
         }
     }
 
-    // Spring press scale animation
+    // Lightweight spring press scale animation
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.88f else 1.0f,
+        targetValue = if (isPressed) 0.90f else 1.0f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+            stiffness = Spring.StiffnessMedium
         ),
         label = "buttonScale"
     )
 
-    val shape = RoundedCornerShape(24.dp)
+    val shape = remember { RoundedCornerShape(24.dp) }
+    val bgBrush = remember(btn) { getButtonBackgroundBrush(btn) }
+    val borderBrush = remember(btn) { getButtonBorderBrush(btn) }
+    val textColor = remember(btn) { getButtonTextColor(btn) }
+    val isOp = remember(btn) { isOperatorOrEquals(btn) }
 
     Box(
         modifier = Modifier
@@ -307,10 +291,10 @@ fun CalculatorButton(btn: ButtonList, onClick: () -> Unit) {
                 scaleY = scale
             }
             .clip(shape)
-            .background(getButtonBackgroundBrush(btn))
+            .background(bgBrush)
             .border(
                 width = 1.dp,
-                brush = getButtonBorderBrush(btn),
+                brush = borderBrush,
                 shape = shape
             )
             .clickable(
@@ -323,8 +307,8 @@ fun CalculatorButton(btn: ButtonList, onClick: () -> Unit) {
         Text(
             text = btn.symbol,
             fontSize = if (btn.symbol.length > 1) 20.sp else 26.sp,
-            fontWeight = if (isOperatorOrEquals(btn)) FontWeight.Bold else FontWeight.SemiBold,
-            color = getButtonTextColor(btn)
+            fontWeight = if (isOp) FontWeight.Bold else FontWeight.SemiBold,
+            color = textColor
         )
     }
 }
@@ -410,4 +394,6 @@ private fun getButtonTextColor(btn: ButtonList): Color {
         else -> Color.White
     }
 }
+
+
 
