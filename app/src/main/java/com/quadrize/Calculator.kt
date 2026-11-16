@@ -102,7 +102,6 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel) {
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.End
         ) {
-            // Glass display card for expression & result
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -124,7 +123,6 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel) {
                     verticalArrangement = Arrangement.Bottom,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Equation display with smooth animation
                     AnimatedContent(
                         targetState = equationText.ifEmpty { "0" },
                         transitionSpec = {
@@ -145,8 +143,6 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel) {
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-
-                    // Result display with animation
                     AnimatedContent(
                         targetState = resultText,
                         transitionSpec = {
@@ -170,7 +166,6 @@ fun Calculator(modifier: Modifier = Modifier, viewModel: CalculatorViewModel) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Glassmorphic Buttons Grid
             LazyVerticalGrid(
                 columns = GridCells.Fixed(4),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -259,15 +254,11 @@ fun CalculatorButton(btn: ButtonList, onClick: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-
-    // Haptic feedback on touch
     LaunchedEffect(isPressed) {
         if (isPressed) {
             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
     }
-
-    // Lightweight spring press scale animation
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.90f else 1.0f,
         animationSpec = spring(

@@ -4,8 +4,9 @@ import androidx.lifecycle.ViewModel
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import org.mozilla.javascript.Context
+import org.mozilla.javascript.Scriptable
 
-private val calculatorEngine = CalculatorEngine()
 class CalculatorViewModel : ViewModel() {
 
     private val _equatiionText = MutableLiveData("")
@@ -18,7 +19,6 @@ class CalculatorViewModel : ViewModel() {
 
     fun onButtonClick(btn: ButtonList) {
         Log.i("Clicked Button", btn.symbol)
-
         _equatiionText.value?.let { equation ->
 
             if (btn == ButtonList.AC) {
@@ -48,22 +48,24 @@ class CalculatorViewModel : ViewModel() {
                         _resultText.value = res
                         isCalculated = true
                     } catch (_: Exception) {
+                        _resultText.value = "Error"
                     }
                 }
                 return
             }
 
-            // If user clicked an operator/digit after result was already calculated
             if (isCalculated) {
                 val currentResult = _resultText.value ?: ""
                 isCalculated = false
                 _resultText.value = ""
 
                 if (isOperator(btn)) {
-                    // Continue calculating using previous result
-                    _equatiionText.value = currentResult + btn.symbol
+                    if (currentResult != "Error") {
+                        _equatiionText.value = currentResult + btn.symbol
+                    } else {
+                        _equatiionText.value = btn.symbol
+                    }
                 } else {
-                    // Start brand new equation with pressed key
                     _equatiionText.value = btn.symbol
                 }
                 return
@@ -83,26 +85,19 @@ class CalculatorViewModel : ViewModel() {
     }
 
     fun calculateResult(equation: String): String {
-        val operator = when {
-            equation.contains("+") -> "+"
-            equation.contains("-") -> "-"
-            equation.contains("*") -> "*"
-            equation.contains("/") -> "/"
-            else -> return equation
-        }
+        return try {
+            val rhino = Context.enter()
+            rhino.optimizationLevel = -1
+            val scriptable: Scriptable = rhino.initStandardObjects()
+            var finalResult = rhino.evaluateString(scriptable, equation, "Javascript", 1, null).toString()
 
-        val numbers = equation.split(operator)
-
-        if (numbers.size < 2 || numbers[1].isEmpty()) return equation
-
-        val firstNumber = numbers[0].toDoubleOrNull() ?: return equation
-        val secondNumber = numbers[1].toDoubleOrNull() ?: return equation
-
-        val result = calculatorEngine.calculate(firstNumber, secondNumber, operator)
-        return if (result % 1.0 == 0.0) {
-            result.toLong().toString()
-        } else {
-            result.toString()
+            if (finalResult.endsWith(".0")) {
+                finalResult = finalResult.replace(".0", "")
+            }
+            Context.exit()
+            finalResult
+        } catch (e: Exception) {
+            "Error"
         }
     }
 }
