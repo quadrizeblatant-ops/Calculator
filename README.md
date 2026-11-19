@@ -9,6 +9,6 @@ A modern, minimalist dark-mode calculator featuring a **glassmorphism** UI and a
 
 | Main Screen | Expression Calculation |
 | :---: | :---: |
-| <img src="https://github.com" alt="Calculator main screen" width="280"/> | <img src="https://github.com" alt="Multiplying logic showcase" width="280"/> |
+| <img src="https://github.com/quadrizeblatant-ops/Calculator/blob/master/images/calc1.png?raw=true" alt="Calculator main screen" width="280"/> | <img src="https://github.com/quadrizeblatant-ops/Calculator/blob/master/images/calc2.png?raw=true" alt="Multiplying logic showcase" width="280"/> |
 
 </div>
