@@ -1,14 +1,14 @@
-## 📱 Интерфейс и возможности
+## 📱 Interface & Features
 
-Современный минималистичный калькулятор в тёмной теме с эффектом матового стекла (**glassmorphism**) и мягкой неоновой подсветкой фона.
+A modern, minimalist dark-mode calculator featuring a **glassmorphism** UI and a soft neon background glow.
 
-* **Продуманная эргономика:** Крупные скруглённые кнопки с цветовым разделением функциональных зон (очистка, операторы, акцентная кнопка результата).
-* **Удобный дисплей:** Одновременное отображение вводимого выражения (со скобками) и крупного итогового результата.
+* **Ergonomic Design:** Large rounded buttons with distinct color coding for clear actions, math operators, and a vibrant gradient equals button.
+* **Dual-Line Display:** Shows the full input expression (including parentheses support) alongside a large, easy-to-read result.
 
 <div align="center">
 
-| Главный экран | Вычисление выражений |
+| Main Screen | Expression Calculation |
 | :---: | :---: |
-| <img src="https://github.com/quadrizeblatant-ops/Calculator/blob/master/images/calc1.png?raw=true" alt="Calculator main screen" width="280"/> | <img src="https://github.com/quadrizeblatant-ops/Calculator/blob/master/images/calc2.png?raw=true" alt="Multiplying logic showcase" width="280"/> |
+| <img src="https://github.com" alt="Calculator main screen" width="280"/> | <img src="https://github.com" alt="Multiplying logic showcase" width="280"/> |
 
 </div>
